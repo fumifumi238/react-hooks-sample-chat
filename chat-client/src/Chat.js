@@ -12,16 +12,22 @@ const Chat = ({name}) => {
     const socketRef = useRef();
 
     useEffect(() => {
-        console.log('Connectinng..');
-        socketRef.current = io();
-        socketRef.current.on('broadcast', payload => {
-            console.log('Recieved: ' + payload);
-            setMessages(prevMessages => [...prevMessages, payload]);
-        });
-        return () => {
-            console.log('Disconnecting..');
-            socketRef.current.disconnect();
-        };
+
+        // 入出
+      console.log("Connectinng..");
+      socketRef.current = io();
+
+      // 他の人が発信したメッセージを受け取る
+      socketRef.current.on("broadcast", (payload) => {
+        console.log("Recieved: " + payload);
+        setMessages((prevMessages) => [...prevMessages, payload]);
+      });
+      return () => {
+
+        // 退出時、コンポーネントがアンマウントされたときに動く
+        console.log("Disconnecting..");
+        socketRef.current.disconnect();
+      };
     }, []);
 
     const handleInputChange = (e) => {
@@ -33,6 +39,8 @@ const Chat = ({name}) => {
             name: name,
             text: text,
         };
+
+        // server側にメッセージを送る
         socketRef.current.emit('send', aMessage);
         setMessages(prevMessages => [...prevMessages, aMessage]);
         setText('');
